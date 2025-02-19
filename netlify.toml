@@ -1,0 +1,8 @@
+[build]
+  command = "pip install -r requirements.txt && streamlit run app2.py"
+  publish = "."
+
+[[redirects]]
+  from = "/"
+  to = "/app2.py"
+  status = 200
