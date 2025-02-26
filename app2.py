@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 # -----------------------------
 # Load pre-trained model, scaler, and training columns
 # -----------------------------
-model = pickle.load(open("model2.pkl", "rb"))
-scaler = pickle.load(open("scaler2.pkl", "rb"))
-training_columns = pickle.load(open("training_columns2.pkl", "rb"))
+model = pickle.load(open("model3.pkl", "rb"))
+scaler = pickle.load(open("scaler3.pkl", "rb"))
+training_columns = pickle.load(open("training_columns3.pkl", "rb"))
 
 st.title("Ship Operational Cost Predictor & Explanation")
 st.write("Enter voyage details to predict the operational cost, receive dynamic recommendations, and view a model explanation.")
