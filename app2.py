@@ -3,13 +3,14 @@ import pandas as pd
 import numpy as np
 import pickle
 from matplotlib import pyplot as plt
-
+import shap  # Import SHAP for model explainability
+from sklearn.linear_model import LinearRegression
 # -----------------------------
 # Load pre-trained model, scaler, and training columns
 # -----------------------------
-model = pickle.load(open("model3.pkl", "rb"))
-scaler = pickle.load(open("scaler3.pkl", "rb"))
-training_columns = pickle.load(open("training_columns3.pkl", "rb"))
+model = pickle.load(open("model4.pkl", "rb"))
+scaler = pickle.load(open("scaler4.pkl", "rb"))
+training_columns = pickle.load(open("training_columns4.pkl", "rb"))
 
 st.title("Ship Operational Cost Predictor & Explanation")
 st.write("Enter voyage details to predict the operational cost, receive dynamic recommendations, and view a model explanation.")
@@ -92,20 +93,39 @@ if st.button("Predict Operational Cost"):
         st.write("- " + rec)
     
     # -----------------------------
-    # Model Explainability with SHAP
+    # Model Explainability
     # -----------------------------
     st.subheader("Model Explanation")
     
-    # Use SHAP TreeExplainer (suitable for tree-based models like RandomForestRegressor)
-    explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(input_scaled)
-    expected_value = explainer.expected_value[0] if isinstance(explainer.expected_value, (list, np.ndarray)) else explainer.expected_value
-
-    # Generate a waterfall plot for local explanation
-    st.write("The following plot explains how each feature contributed to the predicted cost:")
+    # Check if the model is LinearRegression explicitly
+    if type(model) == LinearRegression:
+        feature_importance = model.coef_
+        importance_df = pd.DataFrame({
+            "Feature": input_encoded.columns,
+            "Importance": feature_importance
+        })
+        importance_df = importance_df.sort_values(by="Importance", ascending=False)
+        
+        st.write("The following table shows the features' importance (higher values indicate a greater impact on the predicted cost):")
+        st.dataframe(importance_df)
+        
+        # Plot feature importance
+        plt.figure(figsize=(10, 6))
+        plt.barh(importance_df['Feature'], importance_df['Importance'])
+        plt.xlabel('Importance')
+        plt.title('Feature Importance - Linear Model')
+        st.pyplot(plt.gcf())
     
-    # Generate the waterfall plot using SHAP's internal function
-    # Note: For regression, shap_values is a 2D array; we use the first (and only) instance's SHAP values.
-    plt.figure()
-    shap.plots._waterfall.waterfall_legacy(expected_value, shap_values[0], feature_names=input_encoded.columns, max_display=10)
-    st.pyplot(plt.gcf())
+    # If it's a tree-based model, SHAP can be used for explanation
+    else:
+        st.write("For tree-based models, we use SHAP for a more detailed explanation.")
+        
+        # Generate SHAP values for model explanation
+        explainer = shap.TreeExplainer(model)
+        shap_values = explainer.shap_values(input_scaled)
+        expected_value = explainer.expected_value[0] if isinstance(explainer.expected_value, (list, np.ndarray)) else explainer.expected_value
+
+        # Generate the waterfall plot using SHAP's internal function
+        st.write("The following plot explains how each feature contributed to the predicted cost:")
+        shap.plots.waterfall(shap_values[0])  # For a single prediction
+        st.pyplot(plt.gcf())
