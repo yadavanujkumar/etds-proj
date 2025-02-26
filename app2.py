@@ -144,7 +144,7 @@ scaler6 = pickle.load(open("scaler6.pkl", "rb"))
 training_columns6 = pickle.load(open("training_columns6.pkl", "rb"))
 
 # App Title
-st.title("Ship Operational Cost Predictor & Explanation")
+st.title("Ship Operational Cost , Revenue ,Turn Around Time Predictor & Explanation")
 st.write("Enter voyage details to predict the operational cost, turnaround time, and receive dynamic recommendations.")
 
 # Input Section
